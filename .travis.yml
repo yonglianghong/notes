@@ -3,7 +3,7 @@ branch:
   only:
   - notes
   - gh-pages
-script: find . -mindepth 2 -name "*.md" | awk -F'/' 'BEGIN {RS=".md"} {arr[$2]=arr[$2]"\n    - ["$3"](/"$2"/"$3")"} END { num = asorti(arr, indices); for (i=1; i<=num; ++i) if (indices[i]) print "- "indices[i], arr[indices[i]]}' > _sidebar.md
+script: find . -mindepth 2 -name "*.md" | awk -F'/' 'BEGIN {RS=".md"} {s=$3;gsub(/ /,"%20",$3);arr[$2]=arr[$2]"\n    - ["s"](/"$2"/"$3")"} END { num = asorti(arr, indices); for (i=1; i<=num; ++i) if (indices[i]) print "- "indices[i], arr[indices[i]]}' > _sidebar.md
 deploy:
   provider: pages
   skip-cleanup: true
