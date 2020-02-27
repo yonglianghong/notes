@@ -53,6 +53,22 @@ Java基本类型：
 
 
 
+权限管理：
+
+按照类库（library）、包（package）、类（class）、方法/属性（method/field）进行命名空间管理。一共有4中权限，其关键字分别是public、protected、默认（包）、private，均可修饰类、方法、属性。
+
+- public：公共访问权限。
+- protected：继承访问权限，其修饰方法、属性只能被类本身的方法及子类访问，即使子类在不同的包。同时提供包访问权限。
+- 默认/包（default/friendly）访问权限：同一个包中可以访问
+- private：私有访问权限
+
+注：
+
+1. 每一个编译文件只能有一个public类
+2. 可以`import static abc.xyz.Hello.*`，这样在调用静态方法时可以省略类名
+
+
+
 可变参数
 
 
@@ -179,3 +195,61 @@ javadoc
 
 
 2. 继承、多态、接口
+
+
+
+
+
+##### 5. 编译与执行
+
+*The `java` command starts a Java application. It does this by starting the Java Runtime Environment (JRE), loading the specified class, and calling that class's `main()` method.* 
+
+*The JRE searches for the startup class (and other classes used by the application) in three sets of locations: the bootstrap class path, the installed extensions, and the user's class path.*[1](https://docs.oracle.com/javase/8/docs/technotes/tools/windows/java.html)
+
+*Java™ Platform, Standard Edition Development Kit (JDK™). The JDK is a development environment for building applications, applets, and components using the Java programming language.*
+
+*The JDK includes tools useful for developing and testing programs written in the Java programming language and running on the Java platform.*[2](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html)
+
+`java/javac [<option>...] <classname> [<argument>...]`
+
+- option is a command line option (starting with a "-" character)
+
+- class-name is a fully qualified Java class name 全限定名
+
+`class path`：
+
+- The class path is the path that the Java Runtime Environment (JRE) searches for classes and other resource files.
+- class search path of directories and zip/jar files.（搜寻用户class类的路径/jar/zip）
+
+使用示例：
+
+```shell
+# 编译 
+# ➜ algorithms1 git:(develop) ✗
+javac -cp /Users/ylh/Code/Projects/programming/lib/algs4.jar Test.java
+
+# 解释
+# 指定package com.ylh.coursera.algorithms1;分别在programming项目java和~目录执行
+java -cp .:/Users/ylh/Code/Projects/programming/lib/algs4.jar com.ylh.coursera.algorithms1.Test
+java -cp  /Users/ylh/Code/Projects/programming/src/main/java:/Users/ylh/Code/Projects/programming/lib/algs4.jar com.ylh.coursera.algorithms1.Test
+
+# 不指定package，在programming项目algorithm1目录执行
+java -cp .:/Users/ylh/Code/Projects/programming/lib/algs4.jar Test
+```
+
+`.`代表当前目录，如果未指定package，表示为默认包，因此在解释执行时需要将`.`加入到`CLASSPATH`中。并且不管是否指定package，解释执行时都应该使用类的*全限定名*。
+
+编译时，经测试是否指定package不影响，只要能够找到java文件即可。
+
+`import`语句也会从`CLASSPATH`中去寻找导入的类文件。
+
+注：
+
+1. mac安装jdk后，没有设置`PATH`和`CLASSPATH`也可以执行`java -version`。[3](https://docs.oracle.com/javase/tutorial/essential/environment/paths.html)
+2. 参考IDEA执行java程序时实际使用的java命令，将`$JAVA_HOME/jre/lib`、`$JAVA_HOME/jre/lib/ext`、`$JAVA_HOME/lib`下的jar文件加入到了`CLASSPATH`中。
+3. jar包实际相当于zip包，将class文件集中放在一起，按`package`组织目录层级。要执行jar包里面的类，直接将jar包放进`CLASSPATH`中即可，比如`java -cp hello.jar abc.xyz.Hello`。
+4. jar包可以包含`/META-INF/MANIFEST.MF`文件，指定`Main-Class`和其它信息。这样就不必在命令行指定启动的类名，比如`java -jar hello.jar`。
+5. jdk有默认的`CLASSPATH`目录`.`吗？上述示例需要加`.`才能正常执行。
+
+
+
