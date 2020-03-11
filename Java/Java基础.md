@@ -16,72 +16,97 @@
 
 
 
-##### 2. 基本类型及关键字
+##### 2. 基本概念
 
-Java基本类型：
+1. Java基本类型：
 
-| 基本类型 | 大小    | 最小值    | 最大值         | 包装类    | 默认值         |
-| -------- | ------- | --------- | -------------- | --------- | -------------- |
-| boolean  |         |           |                | Boolean   | false          |
-| char     | 16-bit  | Unicode o | Unicode 2^16-1 | Character | '\u0000'(null) |
-| byte     | 8 bits  | -128      | +127           | Byte      | (byte)0        |
-| short    | 16 bits | -2^15     | +2^15-1        | Short     | (short)0       |
-| int      | 32 bits | -2^31     | +2^31-1        | Integer   | 0              |
-| long     | 64 bits | -2^63     | +2^63-1        | Long      | 0L             |
-| float    | 32 bits | IEEE754   | IEEE754        | Float     | 0.0f           |
-| double   | 64 bits | IEEE754   | IEEE754        | Float     | 0.0d           |
-
-
-
-两个高精度类：
-
-- BigInteger
-
-- BigDecimal
+   | 基本类型 | 大小    | 最小值    | 最大值         | 包装类    | 默认值         |
+   | -------- | ------- | --------- | -------------- | --------- | -------------- |
+   | boolean  |         |           |                | Boolean   | false          |
+   | char     | 16-bit  | Unicode o | Unicode 2^16-1 | Character | '\u0000'(null) |
+   | byte     | 8 bits  | -128      | +127           | Byte      | (byte)0        |
+   | short    | 16 bits | -2^15     | +2^15-1        | Short     | (short)0       |
+   | int      | 32 bits | -2^31     | +2^31-1        | Integer   | 0              |
+   | long     | 64 bits | -2^63     | +2^63-1        | Long      | 0L             |
+   | float    | 32 bits | IEEE754   | IEEE754        | Float     | 0.0f           |
+   | double   | 64 bits | IEEE754   | IEEE754        | Float     | 0.0d           |
 
 
 
-关键字：
-
-- this：调用方法的这个对象
-
-- static：可修饰类、变量、方法，也可以定义静态代码块
-  - 若修饰变量，只占用一份存储
-  - 若修饰方法，内部不能调用非静态方法
-
-- final
+2. 两个高精度类：
+   - BigInteger
+   - BigDecimal
 
 
 
-权限管理：
+3. 关键字：
 
-按照类库（library）、包（package）、类（class）、方法/属性（method/field）进行命名空间管理。一共有4中权限，其关键字分别是public、protected、默认（包）、private，均可修饰类、方法、属性。
+   - this：调用方法的这个对象
 
-- public：公共访问权限。
-- protected：继承访问权限，其修饰方法、属性只能被类本身的方法及子类访问，即使子类在不同的包。同时提供包访问权限。
-- 默认/包（default/friendly）访问权限：同一个包中可以访问
-- private：私有访问权限
+   - static：可修饰类、变量、方法，也可以定义`静态代码块`
 
-注：
+     - 若修饰变量，只占用一份存储空间，非static变量则是每个对象都有一份存储空间
+     - 若修饰方法，方法内部不能调用非静态方法
+     - 声明为static时，意味着该变量或方法不会与包含它的那个类的任何对象实例关联在一起
 
-1. 每一个编译文件只能有一个public类
-2. 可以`import static abc.xyz.Hello.*`，这样在调用静态方法时可以省略类名
+   - final：可以修饰类?、变量、方法，表示不能改变，声明对象时使用final，只是表示引用本身不变（关联的对象本身可以改变）
 
+     常用用法：
 
+     ```java
+     // 静态不可变变量
+     public static final String "abc"；
+     
+     // 静态方法
+     public static void test(){}
+     
+     // 导入静态方法
+     import static abc.xyz.Hello.*
+     ```
 
-可变参数
+     
+
+4. 权限管理：
+
+   按照类库（library）、包（package）、类（class）、方法/属性（method/field）进行命名空间管理。一共有4种权限，其关键字分别是public、protected、默认（包）、private，均可修饰类、方法、属性。
+
+   - public：公共访问权限。
+
+   - protected：继承访问权限，其修饰方法、属性只能被类本身的方法及子类访问，即使子类在不同的包。同时提供包访问权限。
+
+   - 默认/包（default/friendly）：同一个包中可以访问。
+
+   - private：私有访问权限。
+
+     注：
+
+     - 每一个编译文件只能有一个public类
+     - 可以`import static abc.xyz.Hello.*`，这样在调用静态方法时可以省略类名
+
+5. 方法与参数：
+
+   方法名与参数一起构成了方法`签名`，方法（构造或普通）可以`重载`。
+
+   可变参数列表：`f(String... args)`
 
 
 
 ##### 3. 初始化
 
-类的成员变量会被自动初始化为默认值。
+类的成员变量会被自动初始化为默认值，而局部变量则不会被自动初始化。
 
-初始化顺序：
+对象在class文件加载完毕，以及为各成员在方法区开辟好内存空间（*初始化二进制的零*）之后，就开始所谓“初始化”的步骤：
 
-1. 静态对象
-2. 构造器
-3. 
+1. 基类静态代码块，基类静态成员字段 （并列优先级，按代码中出现先后顺序执行）（只有第一次加载类时执行）
+2. 派生类静态代码块，派生类静态成员字段 （并列优先级，按代码中出现先后顺序执行）（只有第一次加载类时执行）
+3. 基类普通代码块，基类普通成员字段 （并列优先级，按代码中出现先后顺序执行）
+4. 基类构造函数
+5. 派生类普通代码块，派生类普通成员字段 （并列优先级，按代码中出现先后顺序执行）
+6. 派生类构造函数
+
+注意，对于的静态过程，只在这个类第一次被加载的时候才运行。如果创建两个对象，第二次创建就只执行3，4，5，6步。[1](https://www.zhihu.com/question/49196023/answer/114734606)
+
+
 
 ##### 4. 操作符
 
@@ -135,7 +160,7 @@ for(initialization; Boolean-expression; step)
   statement
 ```
 
-迭代语句：
+迭代语句：适用于任何`Iterable`对象
 
 ```java
 for(class-name declare : Iterable)
@@ -180,27 +205,79 @@ label: outer-iteration{
 
 
 
- 
+##### 6. 继承、抽象、接口
 
-java/bin、java/lib
+1. 继承
 
-常用命令：
+   `extends`关键字，描述的是类的一种复用，所有的类都自动继承自`Object`类。
 
-java
+   在子类中，调用父类相关的方法（或构造方法），用`super`关键字。父类的含参构造器，子类必须显式的调用。
 
-javac
+   向上或向下转型：父类与子类支持相互转换，子类支持自动向上转型为父类，父类可以强制转型为子类。
 
-javadoc
+2. 多态
+
+   继承允许将对象视为自身或者父类的类型来使用，这提供了一种便利，就是将定义与实现进行了分离。
+
+   绑定：方法与实际对象关联起来称为绑定。
+
+   - 前期绑定：编译时就能确定
+   - 后期绑定/运行时绑定/动态绑定：即在真正运行才能确定，除了static、final方法（private属于final方法）外，java所有的方法都是后期绑定。
+
+   多态只针对普通方法，不包括私有方法、静态方法、属性。
+
+3. 构造器：检查对象是否被正确地构造
+
+   只有基类的构造器才能够保证自己的成员被正确初始化，所以基类的构造器总是在派生类构造过程中调用，而且按照继承层次逐渐向上链接，以使每个基类的构造器都能得到调用。
+
+4. 协变：返回类型支持协变
+
+   ```java
+   class Hello(){
+     Object f(){}
+   }
+   
+   class World extends Path{
+     Sting f(){}
+   }
+   ```
+
+5. 类之间的关系
+
+   - is-a：纯继承
+   - is-like-a：扩展
+
+6. 抽象类：将类的定义部分抽象
+
+   含有抽象方法的类叫抽象类，用关键字`abstract`定义。
+
+7. 接口：将类的定义完全抽象
+
+   关键字`interface`，接口中的方法默认是public的，属性默认是static和final的。
+
+   接口之间可以相互继承（本身就可以理解为类）
+
+   一个类可以实现多个接口，继承一个类（普通或者抽象类），可以灵活向上转型为多个基类型。
+
+8. 内部类
+
+   内部类拥有对其外围类所有成员的访问权。
+
+   - 外部类.this：内部类使用外部类
+   - 外部类对象.new：在其他类构建外部类里面的内部类对象，必须借助外部类对象
+
+   匿名内部类：
+
+   - 声明：`new ClassName(){}`
+   - 含参构造：`new ClassName(x){}`
+   - 使用外部参数：类里面使用比如外部方法的参数，则参数必须是final的
+   - 可以继承或实现接口（只能实现一个），两者二选一：`new InterfaceName(){}`
+
+9. 嵌套类：static类
 
 
 
-2. 继承、多态、接口
-
-
-
-
-
-##### 5. 编译与执行
+##### 7. 编译与执行
 
 *The `java` command starts a Java application. It does this by starting the Java Runtime Environment (JRE), loading the specified class, and calling that class's `main()` method.* 
 
