@@ -108,112 +108,182 @@ Arrays：
 
 1. Iterators：
 
-   - Iterable：可迭代
+   1. Iterable：可迭代
 
-   - Iterator：迭代器
+      - Implementing this interface allows an object to be the target of the "for-each loop" statement.（数组也支持）
 
-   - ListIterator：List的迭代器， 支持双向迭代，元素插入、替换，检索索引。
+      - 主要方法：
 
+        ```java
+        Iterator<T> iterator();
+        default forEach(Consumer<? super T> action);
+        ```
    
-
-`Iterable<T>`：
-
-- `Iterator<T> iterator()`
-- `default forEach(Consumer<? super T> action)`和`default Spliterator<T> spliterator()`
-
-`Iterator<E>`：
-
-- boolean hasNext()：
-- E next()：
-- `default void remove() { throw new UnsupportedOperationException("remove");}`
-- `default void forEachRemaining(Consumer<? super E> action)`
-
-default表示接口的默认实现（从1.8开始，接口可添加默认实现方法）
-
-```java
-class HelloIterable implements Iterable<Integer>{
-    int[
-    HelloIterable(int[] a){this.a =
-    @Override
-    public Iterator iterator() {
-        return new Iterator(){
-            private int index=
-            @Override
-            public boolean hasNext() {
-                return index < a.length;
-         
-            @Override
-            public Object next() {
-                return a[index++];
-            }
-        };
-    }
-}
-
-class HelloComsumer implements Consumer{
-    @Override
-    public void accept(Object o) {
-        System.out.println(o);
-    }
-}
-
-int[] array = {1, 2, 3, 4, 5};
-HelloIterable helloIterable = new HelloIterable(array);
-for(Integer i: helloIterable){
-    System.out.println("i = " + i);
-}
-helloIterable.forEach(new HelloComsumer());
-```
-
-
-
-`ListIterator<E> extends Iterator<E>`：
-
-- 正序迭代：
-  - boolean hasNext();
-  - E next();
-  - int nextIndex();
-- 逆序迭代：
-  - boolean hasPrevious();
-  - E previous();
-  - int previousIndex();
-- void remove();
-- void set(E e);
-- void add(E e);
-
-`ListIterator`的构造器方法`ListIterator(n)`创建一个一开始就指向索引为n的元素的迭代器。
-
-
-
-`Foreach`语法：支持数组或其他任何Iterable。
+   2. Iterator：迭代器
+   
+      - An iterator over a collection. Iterator takes the place of Enumeration in the Java Collections Framework. Iterators differ from enumerations in two ways:（替换Enumeration）
+        - Iterators allow the caller to remove elements from the underlying collection during the iteration with well-defined semantics.（允许在迭代的时候删除）
+        - Method names have been improved.（名字简化）
+   
+      - 主要方法：
+   
+        ```java
+        boolean hasNext();
+        E next();
+        default void remove() { throw new UnsupportedOperationException("remove");}
+        default void forEachRemaining(Consumer<? super E> action);
+        ```
+   
+   3. ListIterator：List的迭代器， 支持双向迭代，元素插入、替换，检索索引
+   
+      - An iterator for lists that allows the programmer to traverse the list in either direction, modify the list during iteration, and obtain the iterator's current position in the list.（List的Iterator，双向迭代，在迭代的过程中修改，持有索引）
+   
+      - A ListIterator has no current element; its cursor position always lies between the element that would be returned by a call to previous() and the element that would be returned by a call to next().
+   
+        - cursor positions: ^ Element(0) ^ Element(1) ^ Element(2) ... Element(n-1)
+   
+      - Note that the remove() and set(Object) methods are not defined in terms of the cursor position; they are defined to operate on the last element returned by a call to next() or previous().
+   
+      - 主要方法：
+   
+        ```java
+        ListIterator<E> extends Iterator<E>
+        
+        // 构造器，一开始就指向索引n
+        ListIterator(n)
+        
+        // 正序迭代
+        boolean hasNext();
+        E next();
+        int nextIndex();
+        
+        // 逆序迭代
+        boolean hasPrevious();
+        E previous();
+        int previousIndex();
+        
+        void remove();
+        void set(E e);
+        void add(E e);
+        ```
+   
+   4. 示例：
+   
+      ```java
+      class HelloIterable implements Iterable<Integer>{
+          int[
+          HelloIterable(int[] a){this.a =
+          @Override
+          public Iterator iterator() {
+              return new Iterator(){
+                  private int index=
+                  @Override
+                  public boolean hasNext() {
+                      return index < a.length;
+               
+                  @Override
+                  public Object next() {
+                      return a[index++];
+                  }
+              };
+          }
+      }
+      
+      class HelloComsumer implements Consumer{
+          @Override
+          public void accept(Object o) {
+              System.out.println(o);
+          }
+      }
+      
+      int[] array = {1, 2, 3, 4, 5};
+      HelloIterable helloIterable = new HelloIterable(array);
+      for(Integer i: helloIterable){
+          System.out.println("i = " + i);
+      }
+      helloIterable.forEach(new HelloComsumer());
+      ```
+   
+      default表示接口的默认实现（从1.8开始，接口可添加默认实现方法）
 
 
 
 2. Ordering
-
-- - Comparable：实现此接口的类都提供了自然顺序（natural ordering）
-  - Comparator：用来表示顺序，可以覆盖自然顺序，或者不实现Comparable接口的排序对象
-
-
-
-`Comparable<T>`
-
-- `int compareTo(T o)`
-
-
-
-Comparator：
-
-- `int compare(T o1, T o2)`：注意常用错误写法，`return i-j`，如果i是很大的正整数，j是很大的负整数，则可能溢出
-- `boolean equals(Object obj)`：通常不用实现
-
-若某类本身没有实现Comparable接口，可以自定义Comparator比较器，Arrays/Collections.sort()支持传入comparator。
+   1. Comparable：定义类对象的排序（自然排序）
+      - This interface imposes a total ordering on the objects of each class that implements it. This ordering is referred to as the class's natural ordering, and the class's compareTo method is referred to as its natural comparison method.（实现该接口的每个类的对象进行排序。称之为类的自然排序，compareTo方法称为自然排序方法）
+      
+      - Lists (and arrays) of objects that implement this interface can be sorted automatically by Collections.sort (and Arrays.sort). Objects that implement this interface can be used as keys in a sorted map or as elements in a sorted set, without the need to specify a comparator.（Lists/arrays里对象实现该接口则可以利用Collections.sort/Arrays.sort进行排序。实现该接口的对象可以作为sorted map/set的键/元素）
+      
+      - The natural ordering for a class C is said to be consistent with equals if and only if e1.compareTo(e2) == 0 has the same boolean value as e1.equals(e2) for every e1 and e2 of class C. Note that null is not an instance of any class, and e.compareTo(null) should throw a NullPointerException even though e.equals(null) returns false.(自然序与equals保持一致是指e1.compareTo(e2)==0与e1.equals(e2)有相同的结果。注意null，e.compareTo(null)会抛出空指针异常，但是e.equals(null)返回false。)
+      
+      - It is strongly recommended (though not required) that natural orderings be consistent with equals.（强烈建议equals与natural orderings保持一致）
+      
+      - 主要方法：
+      
+        ```java
+        int compareTo(T o)
+        ```
+   
+   2. Comparator
+      - A comparison function, which imposes a total ordering on some collection of objects. Comparators can be passed to a sort method (such as Collections.sort or Arrays.sort) to allow precise control over the sort order. Comparators can also be used to control the order of certain data structures (such as sorted sets or sorted maps), or to provide an ordering for collections of objects that don't have a natural ordering.（比较函数，可传递给排序函数、用于控制排序sets/maps、无自然排序的对象（即未实现Comparable接口，但可自定义Comparator））
+   
+      - The ordering imposed by a comparator c on a set of elements S is said to be consistent with equals if and only if c.compare(e1, e2)==0 has the same boolean value as e1.equals(e2) for every e1 and e2 in S.（与equals定义保持一致）
+   
+      - Unlike Comparable, a comparator may optionally permit comparison of null arguments, while maintaining the requirements for an equivalence relation.（允许对null灵活处理，而comparable抛出空指针异常）
+   
+      - 主要方法：
+   
+        ```java
+        int compare(T o1, T o2) // 注意如果直接return i-j则可能导致溢出，当i是很大的正整数，j是很大的负整数
+        boolean equals(Object obj) // 通常不用实现
+        ```
+   
+      - 常用Comparator：
+   
+        ```java
+        Comparator.reverseOrder();
+        Comparator.naturalOrder();
+        String.CASE_INSENSITIVE_ORDER;
+        ```
+   
+   3. 示例：
+   
+      ```java
+      class Student {
+          String name;
+          int age;
+          Student(String name, int age){
+              this.name = name;
+              this.age = age;
+          }
+          @Override
+          public String toString(){
+             return "[name="+name+",age="+age+"]";
+          }
+      }
+      
+      List<Student> students = new ArrayList<>();
+      students.add(new Student("a", 1));
+      students.add(new Student("c", 3));
+      students.add(new Student("b", 2));
+      System.out.println(students);// [[name=a,age=1], [name=c,age=3], [name=b,age=2]]
+      Collections.sort(students, new Comparator<Student>() {
+          @Override
+          public int compare(Student o1, Student o2) {
+              return o1.age > o2.age? (o1.age==o2.age? 0:1):-1;
+          }
+      });
+      System.out.println(students);// [[name=a,age=1], [name=b,age=2], [name=c,age=3]]
+      ```
+   
+      
 
 
 
 3. Performance
-   - RandomAccess：支持快速随机访问（generally constant time），*The primary purpose of this interface is to allow generic algorithms to alter their behavior to provide good performance when applied to either random or sequential access lists.*
-   - 只是一个单独的接口，里面没有定义任何方法
+   1. RandomAccess：
+      - 支持快速随机访问（generally constant time），*The primary purpose of this interface is to allow generic algorithms to alter their behavior to provide good performance when applied to either random or sequential access lists.*
+      - 只是一个单独的接口，里面没有定义任何方法
 
 
 
@@ -221,187 +291,213 @@ Comparator：
 
 1. Stack：Last In First Out 后进先出
 
-```java
-public class Stack<T> {
-  private LinkedList<T> storage = new LinkedList<T>();
-  public void push(T v){ storage.addFirst(v); }
-  public T peek(){ return storage.getFirst(); }
-  public T pop(){ return storage.removeFirst(); }
-  public boolean empty(){ return storage.isEmpty(); }
-  public String toString(){ return storage.toString(); }
-}
-```
+   - 自定义Stack
 
-栈经常用来对表达式求值
+     ```java
+     // 利用LinkedList
+     public class Stack<T> {
+       private LinkedList<T> stack = new LinkedList<T>();
+       public void push(T v){ stack.addFirst(v); } // 入栈
+       public T peek(){ return stack.getFirst(); } // 一瞥
+       public T pop(){ return stack.removeFirst(); } //出栈
+       public boolean empty(){ return stack.isEmpty(); }
+       public String toString(){ return stack.toString(); }
+     }
+     ```
+
+   - java.util.Stack
+
+     - 继承自Vector
+
+     - 主要方法：
+
+       ```java
+       E push(E item) // 入栈
+       synchronized E pop() // 出栈
+       synchronized E peek() // 一瞥
+       boolean empty()
+       synchronized int search(Object o) // 检索,discover how far it is from the top
+       ```
+
+   - 栈经常用来对表达式求值
 
 
 
 2. Queue：First In First Out 先进先出
 
-Queue接口：
+   1. Queue整体结构
 
-- add()/offer()：插入队尾，返回boolean
-- peek()/element()：返回队头，peek()在为空的时候返回null，element()抛出NoSuchElementException异常
-- poll()/remove()：移除并返回队头，poll()在为空的时候返回null，remove()抛出NoSuchElementException异常
+      <div style="text-align: center;"> <img src="https://raw.githubusercontent.com/yonglianghong/my-drive/md/img/Java.Collections.Framework.Queue.jpg"  width = "50%" height = "50%"/>
+      </div>
 
+   2. Queue
 
+      - A collection designed for holding elements prior to processing.
 
-PriorityQueue类：可以确保调用peek()、poll()、remove()方法时，获取的将是队列中优先级最高的元素。基于堆实现，默认按元素自然序，可提供Comparator。
+      - Each of these methods exists in two forms: one throws an exception if the operation fails, the other returns a special value (either null or false, depending on the operation). (两种形式，当失败时，一种抛出异常，一种返回特殊值，比如null)
 
+        |                          | Throws NoSuchElementException | Returns special value(null) |
+        | ------------------------ | ----------------------------- | --------------------------- |
+        | Insert（插入队尾）       | add(e)                        | offer(e)                    |
+        | Remove（移除并返回队头） | remove()                      | poll()                      |
+        | Examine（查看队头）      | element()                     | peek()                      |
 
+   3. Deque(Double ended queue)
 
-双端队列：
+      - A linear collection that supports element insertion and removal at both ends.（两端都支持插入和删除）
 
-```java
-public class Deque<T>{
-    private LinkedList<T> deque = new LinkedList<T>();
-    public void addFirst(T e){ deque.addFirst(e); }
-    public void addLast(T e){ deque.addLast(e); }
-    public T getFirst(){ return deque.getFirst(); }
-    public T getLast(){ return deque.getLast(); }
-    public T removeFirst(){ return deque.removeFirst(); }
-    public T removeLast(){ return deque.removeLast(); }
-    public int size(){ return deque.size(); }
-    public String toString(){ return deque.toString(); }
-}
-```
+      - this interface supports capacity-restricted deques as well as those with no fixed size limit.（支持指定容量或者不限容量）
+
+      - Summary of Deque methods
+
+        |                 | Throws exception | Special value | Throws exception | Special value |
+        | --------------- | ---------------- | ------------- | ---------------- | ------------- |
+        | Insert（插入）  | addFirst(e)      | offerFirst(e) | addLast(e)       | offerLast(e)  |
+        | Remove（移除）  | removeFirst()    | pollFirst()   | removeLast()     | pollLast()    |
+        | Examine（查看） | getFirst()       | peekFirst()   | getLast()        | peekLast()    |
+
+   4. ArrayDeque&LinkedList
+
+      ```java
+      Deque<T> deque = new ArrayDeque<T>();
+      Deque<T> deque = new LinkedList<T>();
+      ```
+
+   5. PriorityQueue
+
+      - An unbounded priority queue based on a priority heap. The elements of the priority queue are ordered according to their natural ordering, or by a Comparator provided at queue construction time, depending on which constructor is used.（基于堆，按自然序或者指定Comparator排序的队列）
+
+      - The head of this queue is the least element with respect to the specified ordering.The queue retrieval operations poll, remove, peek, and element access the element at the head of the queue.（队列头是最小的元素，poll、remove、peek、element访问队头元素）
+      - 时间复杂度：
+      	- O(log(n)) time for the enqueuing and dequeuing methods (offer, poll, remove() and add); 
+      	- linear time for the remove(Object) and contains(Object) methods; 
+      	- constant time for the retrieval methods (peek, element, and size).
 
 
 
 ##### 5. List
 
-List：An ordered collection (also known as a *sequence*). 一种有序collection，即序列。
+1. List：An ordered collection (also known as a *sequence*). 一种有序collection，即序列。
 
-- 可以指定位置插入，使用integer index (position in the list) 访问元素
-- 允许重复元素，包括null
-- ListIterator，双向（bidirectional）迭代，允许element 插入和替换（insertion and replacement），以及在指定位置开始迭代
+   - 可以指定位置插入，使用integer index (position in the list) 访问元素
 
-- 主要方法：
+   - 允许重复元素，包括null
 
-  ```java
-  // 长度
-  int size();
-  // 是否为空
-  boolean isEmpty();
-  // 包含
-  boolean contains(Object o);
-  // 添加&替换
-  boolean add(E e);
-  void add(int index, E e);
-  E set(int index, E e);
-  // 获取
-  E get(int index);
-  // 删除
-  E remove(int index);
-  boolean remove(Object o);
-  // 迭代器
-  Iterator<E> iterator();
-  ListIterator<E> listIterator();
-  ListIterator<E> listIterator(int index);
-  // 子序列(与原序列关联)
-  List<E> subList(int fromIndex, int toIndex);
-  ```
+   - ListIterator，双向（bidirectional）迭代，允许element 插入和替换（insertion and replacement），以及在指定位置开始迭代
 
-  
+   - 主要方法：
 
-ArrayList：擅长快速访问（本质上是因为连续地址空间）
+     ```java
+     // 长度
+     int size();
+     // 是否为空
+     boolean isEmpty();
+     // 包含
+     boolean contains(Object o);
+     // 添加&替换
+     boolean add(E e);
+     void add(int index, E e);
+     E set(int index, E e);
+     // 获取
+     E get(int index);
+     // 删除
+     E remove(int index);
+     boolean remove(Object o);
+     // 迭代器
+     Iterator<E> iterator();
+     ListIterator<E> listIterator();
+     ListIterator<E> listIterator(int index);
+     // 子序列(与原序列关联)
+     List<E> subList(int fromIndex, int toIndex);
+     ```
 
-1. 主要方法：
+     
 
-- - 添加：add(E e)/add(int index, E element)
-  - 删除：remove(int index)/remove(Object o)
-  - 获取：get(int index)
-  - 设置（替换）：set(int index, E element)
+2. ArrayList：擅长快速访问（本质上是因为连续地址空间）
 
-2. 允许放入null元素
-3. 底层是Object[]（Java泛型是编译器提供的语法糖），get时强制转型
-4. 实现Serializable、RandomAccess、Cloneable接口
-5. 效率：
+   1. 主要方法：
+      - 添加：add(E e)/add(int index, E element)
+      - 删除：remove(int index)/remove(Object o)
+      - 获取：get(int index)
+      - 设置（替换）：set(int index, E element)
 
-- - 插入末尾，如果不扩容?，O(1)，插入指定索引，插入后要移动元素，O(n)
-  - 删除后要将后面的元素向前移动，O(n)
-  - 查询，O(1)
+   2. 允许放入null元素
+   3. 底层是Object[]（Java泛型是编译器提供的语法糖），get时强制转型
+   4. 实现Serializable、RandomAccess、Cloneable接口
+   5. 效率：
+      - 插入末尾，如果不扩容?，O(1)，插入指定索引，插入后要移动元素，O(n)
+      - 删除后要将后面的元素向前移动，O(n)
+      - 查询，O(1)
 
 
 
-LinkedList：擅长快速插入删除（用链表实现的列表）
+3. LinkedList：擅长快速插入删除（用链表实现的列表）
 
-1. 主要方法：
+   1. 主要方法：
+      - 添加：add(E e)/add(int index, E element)
+      - 删除：remove(int index)/remove(Object o)
+      - 获取：get(int index)
+      - 设置：set(int index, E element)
 
-- - 添加：add(E e)/add(int index, E element)
-  - 删除：remove(int index)/remove(Object o)
-  - 获取：get(int index)
-  - 设置：set(int index, E element)
-
-2. 双向循环链表，允许元素为null?
-
-3. 实现Serializable、Cloneable接口
-
-4. 查找指定索引处元素，有一个加速动作，比较index与size >> 1（即size/2）来决定从first还是last开始遍历
-
-5. 效率：
-
-- - 插入末尾，O(1)，插入指定索引，O(n)
-  - 删除，需要先查找，O(n)
-  - 查找，O(n)
+   2. 双向循环链表，允许元素为null?
+   3. 实现Serializable、Cloneable接口
+   4. 查找指定索引处元素，有一个加速动作，比较index与size >> 1（即size/2）来决定从first还是last开始遍历
+   5. 效率：
+      - 插入末尾，O(1)，插入指定索引，O(n)
+      - 删除，需要先查找，O(n)
+      - 查找，O(n)
 
 
 
 ##### 6. Set
 
-Set：无重复元素的Collection
+1. Set：无重复元素的Collection
 
-- 允许null（只包含1个）
+   - 允许null（只包含1个）
 
-- 依赖于equals()方法，判断是否重复，因此对于已经加入set的可变元素需要注意
+   - 依赖于equals()方法，判断是否重复，因此对于已经加入set的可变元素需要注意
 
-- 主要方法：
+   - 主要方法：
 
-  ```java
-  // 长度
-  int size();
-  // 是否为空
-  boolean isEmpty();
-  // 包含
-  boolean contains(Object o);
-  // 添加
-  boolean add(E e);
-  // 移除
-  boolean remove(Object o);
-  // 迭代器
-  Iterator<E> iterator();
-  ```
+     ```java
+     // 长度
+     int size();
+     // 是否为空
+     boolean isEmpty();
+     // 包含
+     boolean contains(Object o);
+     // 添加
+     boolean add(E e);
+     // 移除
+     boolean remove(Object o);
+     // 迭代器
+     Iterator<E> iterator();
+     ```
 
+2. HashSet：为快速查找而设计的Set，基于HashMap实现
 
+3. LinkedHashSet：继承自HashSet，使用双链表维护插入顺序
 
-HashSet：为快速查找而设计的Set，基于HashMap实现
+4. SortedSet -> TreeSet：元素必须实现Comparable，保持自然顺序，基于TreeMap实现，底层树形结构
 
+   - 主要方法：
 
-
-LinkedHashSet：继承自HashSet，使用双链表维护插入顺序
-
-
-
-SortedSet -> TreeSet：元素必须实现Comparable，保持自然顺序，基于TreeMap实现，底层树形结构
-
-主要方法：
-
-```java
-Object first();
-Object last();
-// [) 前闭后开
-SortedSet subSet(E from, E to);
-// 从head到to的子集，同样前闭后开
-SortedSet headSet(E to);
-// 从from到tail的子集，同样前闭后开
-SortedSet tailSet(E from)
-```
+     ```java
+     Object first();
+     Object last();
+     // [) 前闭后开
+     SortedSet subSet(E from, E to);
+     // 从head到to的子集，同样前闭后开
+     SortedSet headSet(E to);
+     // 从from到tail的子集，同样前闭后开
+     SortedSet tailSet(E from)
+     ```
 
 
 
 ##### 7. Map
 
-###### 7.1. Map整体结构
+0. Map整体结构
 
 <div style="text-align: center;"> <img src="https://raw.githubusercontent.com/yonglianghong/my-drive/md/img/Java.Collections.Framework.Map.jpg"  width = "50%" height = "50%"/> <br> <div style="color:orange; border-bottom: 1px solid #d9d9d9;display: inline-block;color: #999;padding: 2px;font-style:italic;font-size:80%">Map接口图</div>
 </div>
@@ -535,19 +631,78 @@ SortedSet tailSet(E from)
 
 ##### 8. hashcode()和equals
 
+1. equals() vs ==
+   - Main difference between .equals() method and == operator is that one is method and other is operator.（一个是方法，一个是操作符）
+   - We can use == operators for reference comparison (address comparison) and .equals() method for content comparison. In simple words, == checks if both objects point to the same memory location whereas .equals() evaluates to the comparison of values in the objects.（我们可以用==比较内存地址，equals比较内容）
+
+2. ==
+   - We can apply equality operators for every primitive types including boolean type.（适用于基本类型）
+   - we can also apply equality operators for object types.there should be compatibility between arguments types (either child to parent or parent to child or same type)（适用于Object类型，且参数类型之间应该兼容）
+
+3. equals
+   - 自反性、对称性、传递性、一致性
+   - string equals() method compares the two given strings based on the data/content of the string.（String的equals方法比较内容）
+   - Object的equals方法，实际上是用==实现的
+   - x.equals(null) => false,instanceof null => false
+
+4. hashcode
+   - 关注生成速度（速度优于唯一性）
+   - 均匀
+   - 任何时候，同一对象的hashcode值一致
+   - hashcode生成工具：参考jakarta.apache.org/commons的lang下
 
 
-##### 9. Arrays和Collections、常用算法
+
+##### 9. Arrays、Collections和实现算法
+
+- 算法（Algorithms）：The Collections class contains these useful static methods.
+    - Sort(List)：利用归并算法实现的排序，why not quicksort? 性能比较平均，并且是stability的算法（vs quicksort）
+    - binarySearch(List, Object)：二分查找
+    - reverse(List)：逆序
+    - shuffle(List)：洗牌，随机打乱顺序（from the last element up to the second, repeatedly swapping a randomly selected element into the "current position"）从后向前，交换当前位置与前面的随机一个位置上的元素
+    - fill(List, Object)：用指定值覆盖原来的所有元素
+    - copy(List dest, List src)：复制
+    - min(Collection)
+    - max(Collection)
+    - rotate(List list, int distance)：将列表中的所有元素旋转指定距离
+    - replaceAll(List list, Object oldVal, Object newVal)：替换指定值
+    - indexOfSubList(List source, List target)：返回第一个匹配的子序列index
+    - lastIndexOfSubList(List source, List target)：返回最后一个匹配的子序列索引
+    - swap(List, int, int)：交换元素
+    - frequency(Collection, Object)：统计指定值出现的次数
+    - disjoint(Collection, Collection)：判断两个集合是否相交
+    - addAll(Collection<? super T>, T...)：添加所有值
+
+- Arrays
+    - Contains static methods to sort, search, compare, hash, copy, resize, convert to String, and fill arrays of primitives and objects.
+    - 排序、搜索、比较、hash、复制、扩容、转成string，适用于基本类型或者object的数组
 
 
 
 ##### 10. Stack、Vector、Enumeration、HashTable
 
+- Vector：The Vector class implements a growable array of objects.（可自动扩容的对象数组，注意很多方法使用synchronized实现同步）
+- Stack继承自Vector，实现栈的特点
+- Enumeration：迭代的初始设计，可用Iteration替代，参考适配器设计模式兼容历史代码
+- HashTable：类似HashMap，同样很多方法使用synchronized实现同步
+
 
 
 ##### 11. BitSet
 
+1. 基于`Array[Long]`实现，可以理解为`Array[Long][Bit]`，即一个long是64位。初始化：`Array[Long] word = new Array[Long](initSize)`
+2. 添加元素：
+    - 先计算一维：`val idx = elem >> LogWL //LogWL=6`,因为long是64位整型
+    - 利用或运算更新：`updateWord(idx, word(idx) | (1L << elem))`
+    - 注：如果elem大于64，则`1L << elem `等价于 `1L << (elem / 64)`
 
+
+
+##### 12. fail-fast:
+
+- fail-fast，是Java集合的一种错误检测机制。当多个线程对集合进行结构上的改变的操作时，就可能触发，抛出ConcurrentModificationException异常。
+-  迭代器的快速失败行为无法得到保证，即不能保证一定会出现该错误，但是快速失败操作会尽最大努力抛出ConcurrentModificationException异常
+- 利用modCount记录structurally modified次数，如果这个值更改，则iterator/listIterator会抛出ConcurrentModificationException异常
 
 
 
